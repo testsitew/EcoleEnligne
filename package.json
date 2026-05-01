@@ -1,0 +1,35 @@
+// backend/app.js
+const express = require('express');
+const cors = require('cors');
+const app = express();
+
+app.use(cors());
+app.use(express.json());
+
+let courses = [
+  { id: 1, title: 'Tajwid & Tafsir', description: 'Apprenez le Tajwid...', price: 99, duration: '3 mois', icon: 'fas fa-book-open' },
+  { id: 2, title: 'Arabe Classique', description: 'Cours complet Arabe...', price: 79, duration: '6 mois', icon: 'fas fa-language' },
+  { id: 3, title: 'Mémoire du Quran', description: 'Mémoire complète...', price: 69, duration: '2 ans', icon: 'fas fa-mosque' }
+];
+
+let testimonials = [
+  { id: 1, name: 'Fatima A.', text: 'Excellente pédagogie !', rating: 5, status: 'published' },
+  { id: 2, name: 'Ahmed B.', text: 'Plateforme intuitive.', rating: 5, status: 'published' }
+];
+
+// CORS et JSON middleware déjà déclaré
+
+// Routes API publiques
+app.get('/api/courses', (req, res) => {
+  res.json(courses);
+});
+
+app.get('/api/testimonials', (req, res) => {
+  res.json(testimonials.filter(t => t.status === 'published'));
+});
+
+// Démarrage serveur
+const PORT = 3001;
+app.listen(PORT, () => {
+  console.log(`API Backend démarré sur http://localhost:${PORT}`);
+});
