@@ -556,5 +556,23 @@
             }
         });
     </script>
+    // Remplacez les données statiques par API
+async function loadSiteData() {
+    const courses = await fetch('http://localhost:3001/api/courses').then(r => r.json());
+    const testimonials = await fetch('http://localhost:3001/api/testimonials').then(r => r.json());
+    
+    // Mettre à jour le DOM
+    document.querySelector('.courses-grid').innerHTML = courses.map(course => `
+        <div class="course-card">
+            <div class="course-image"><i class="${course.icon}"></i></div>
+            <div class="course-content">
+                <h3>${course.title}</h3>
+                <p>${course.description}</p>
+                <div>€${course.price}/mois</div>
+            </div>
+        </div>
+    `).join('');
+}
+loadSiteData();
 </body>
 </html>
