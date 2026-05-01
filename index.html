@@ -608,7 +608,8 @@
             }
         });
     </script>
-    // Remplacez les données statiques par API
+    // Remplacez les données statiques par API 
+    <script>
 async function loadSiteData() {
     const courses = await fetch('http://localhost:3001/api/courses').then(r => r.json());
     const testimonials = await fetch('http://localhost:3001/api/testimonials').then(r => r.json());
@@ -626,5 +627,6 @@ async function loadSiteData() {
     `).join('');
 }
 loadSiteData();
+    </script>
 </body>
 </html>
