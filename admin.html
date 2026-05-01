@@ -1,29 +1,90 @@
-<div class="login-container" id="loginScreen">
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Admin Institut Quran & Arabe</title>
+<style>
+  body { font-family:'Poppins',sans-serif; background:#F5F2E9; color:#8B4513; padding: 2rem; }
+  #loginScreen, #dashboard { max-width: 400px; margin: auto; }
+  #dashboard { display:none; }
+  input, button { width:100%; padding:10px; margin: .5rem 0; border-radius:8px; border:1.5px solid #8B4513; box-sizing: border-box; }
+  button { background:#8B4513; color:white; font-weight:bold; border:none; cursor:pointer;}
+  button:hover { background:#654321; }
+  table { width:100%; border-collapse: collapse; margin-top: 2rem;}
+  th, td { border:1px solid #ddd; padding:8px; }
+  th { background:#f1e6c9; }
+</style>
+</head>
+<body>
+
+<div id="loginScreen">
   <h2>Connexion Admin</h2>
   <form id="loginForm">
-    <label for="loginEmail">Email :</label>
-    <input id="loginEmail" type="email" placeholder="admin@institutquran.fr" required />
-    
-    <label for="loginPassword">Mot de passe :</label>
-    <input id="loginPassword" type="password" placeholder="admin123" required />
-    
+    <input type="email" placeholder="admin@institutquran.fr" id="loginEmail" required />
+    <input type="password" placeholder="mot de passe" id="loginPassword" required />
     <button type="submit">Se connecter</button>
   </form>
 </div>
 
+<div id="dashboard">
+  <h2>Admin Dashboard</h2>
+  <button id="logoutBtn">Déconnexion</button>
+  <h3>Liste des cours</h3>
+  <table>
+    <thead><tr><th>ID</th><th>Titre</th><th>Description</th><th>Prix</th><th>Durée</th></tr></thead>
+    <tbody id="coursesTableBody"></tbody>
+  </table>
+</div>
+
 <script>
-  // Gestion du formulaire de connexion
-  document.getElementById('loginForm').addEventListener('submit', function(e) {
+  const API_BASE = 'http://localhost:3001/api';
+  let token = null;
+
+  const loginScreen = document.getElementById('loginScreen');
+  const dashboard = document.getElementById('dashboard');
+  const loginForm = document.getElementById('loginForm');
+  const logoutBtn = document.getElementById('logoutBtn');
+  const coursesTableBody = document.getElementById('coursesTableBody');
+
+  loginForm.addEventListener('submit', e=>{
     e.preventDefault();
-    
-    const email = document.getElementById('loginEmail').value.trim();
-    const password = document.getElementById('loginPassword').value.trim();
-    
-    if(email === 'admin@institutquran.fr' && password === 'admin123') {
-      alert('✅ Connexion réussie !');
-      // Ici vous pouvez rediriger ou afficher le dashboard
+    const email = document.getElementById('loginEmail').value;
+    const password = document.getElementById('loginPassword').value;
+
+    if (email === "admin@institutquran.fr" && password === "admin123"){
+      token = "simulated-token";
+      loginScreen.style.display = "none";
+      dashboard.style.display = "block";
+      loadCourses();
     } else {
-      alert('❌ Identifiants incorrects');
+      alert("Identifiants incorrects !");
     }
   });
+
+  logoutBtn.addEventListener('click', ()=>{
+    token = null;
+    loginScreen.style.display = "block";
+    dashboard.style.display = "none";
+  });
+
+  async function loadCourses(){
+    try {
+      const res = await fetch(API_BASE + "/courses");
+      if(!res.ok) throw new Error("Erreur API");
+      const courses = await res.json();
+      coursesTableBody.innerHTML = courses.map(c => `
+        <tr>
+          <td>${c.id}</td><td>${c.title}</td><td>${c.description}</td><td>€${c.price}</td><td>${c.duration}</td>
+        </tr>
+      `).join('');
+    } catch(err) {
+      alert("Erreur chargement");
+      console.error(err);
+    }
+  }
 </script>
+
+</body>
+</html>
