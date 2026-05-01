@@ -20,6 +20,36 @@
             --shadow: 0 10px 30px rgba(139, 69, 19, 0.15);
         }
 
+        <div class="login-container" id="loginScreen">
+  <h2>Connexion Admin</h2>
+  <form id="loginForm">
+    <label for="loginEmail">Email :</label>
+    <input id="loginEmail" type="email" placeholder="admin@institutquran.fr" required />
+    
+    <label for="loginPassword">Mot de passe :</label>
+    <input id="loginPassword" type="password" placeholder="admin123" required />
+    
+    <button type="submit">Se connecter</button>
+  </form>
+</div>
+
+<script>
+  // Gestion du formulaire de connexion
+  document.getElementById('loginForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const email = document.getElementById('loginEmail').value.trim();
+    const password = document.getElementById('loginPassword').value.trim();
+    
+    if(email === 'admin@institutquran.fr' && password === 'admin123') {
+      alert('✅ Connexion réussie !');
+      // Ici vous pouvez rediriger ou afficher le dashboard
+    } else {
+      alert('❌ Identifiants incorrects');
+    }
+  });
+</script>
+
         * {
             margin: 0;
             padding: 0;
