@@ -144,6 +144,56 @@
             flex-wrap: wrap;
             animation: fadeInUp 1s ease 0.4s both;
         }
+            /* ===== NOUVEAU CSS POUR DONNÉES DYNAMIQUES ===== */
+    .courses-grid {
+        display: grid !important;
+        grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+        gap: 2rem;
+        margin-top: 2rem;
+    }
+    
+    .testimonial-grid {
+        display: grid !important;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 2rem;
+        margin-top: 2rem;
+    }
+    
+    /* Amélioration affichage dynamique */
+    .course-card {
+        transition: all 0.3s ease !important;
+    }
+    
+    .course-card:hover {
+        transform: translateY(-10px) !important;
+    }
+    
+    /* Loading spinner */
+    .loading {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 200px;
+        font-size: 1.2rem;
+        color: var(--marron-light);
+    }
+    
+    .loading::after {
+        content: '';
+        width: 30px;
+        height: 30px;
+        border: 3px solid var(--beige-dark);
+        border-top: 3px solid var(--marron);
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin-left: 1rem;
+    }
+    
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+    /* ===== FIN CSS ===== */
 
         /* Sections */
         section {
