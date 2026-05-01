@@ -625,8 +625,14 @@ async function loadSiteData() {
             </div>
         </div>
     `).join('');
+}  catch (err) {
+    console.error('Erreur lors du chargement des données', err);
+  }
 }
-loadSiteData();
+
+// Lancer le chargement des données une fois la page chargée
+window.addEventListener('load', loadSiteData);
+
     </script>
 </body>
 </html>
