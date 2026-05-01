@@ -1,140 +1,140 @@
 const express = require('express');
-const bodyParser = require('body-parser');
 const cors = require('cors');
 const sqlite3 = require('sqlite3').verbose();
+const jwt = require('jsonwebtoken');
+const bcrypt = require('bcryptjs');
+const multer = require('multer');
+const WebSocket = require('ws');
 const path = require('path');
+
 const app = express();
+const SECRET = 'votre_secret_super_secure';
 
+// Middleware
 app.use(cors());
-app.use(bodyParser.json());
+app.use(express.json());
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
-const db = new sqlite3.Database(path.join(__dirname, 'data', 'institut.db'));
+// Config multer pour upload images
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => cb(null, path.join(__dirname, 'uploads/')),
+  filename: (req, file, cb) => cb(null, Date.now() + path.extname(file.originalname))
+});
+const upload = multer({ storage });
+
+// SQLite DB
+const db = new sqlite3.Database(':memory:'); // ou fichier .db
 
 db.serialize(() => {
-  db.run(`CREATE TABLE IF NOT EXISTS courses (
+  // Tables majeures
+  db.run(`CREATE TABLE users (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    email TEXT UNIQUE,
+    password TEXT,
+    role TEXT, -- admin/teacher/student
+    name TEXT
+  )`);
+
+  db.run(`CREATE TABLE courses (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     title TEXT,
     description TEXT,
     price INTEGER,
     duration TEXT,
-    icon TEXT
+    icon TEXT,
+    image TEXT
   )`);
 
-  db.run(`CREATE TABLE IF NOT EXISTS testimonials (
+  db.run(`CREATE TABLE students (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     name TEXT,
-    text TEXT,
-    rating INTEGER,
-    status TEXT
-  )`);
-
-  db.run(`CREATE TABLE IF NOT EXISTS students (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    name TEXT,
-    email TEXT,
+    email TEXT UNIQUE,
     course_id INTEGER,
-    enrollment_date TEXT,
-    status TEXT,
     FOREIGN KEY(course_id) REFERENCES courses(id)
   )`);
 
-  // Insert quelques données pour test si tables vides
-  db.get("SELECT COUNT(*) as count FROM courses", (err, row) => {
-    if(row.count === 0){
-      const stmt = db.prepare("INSERT INTO courses (title, description, price, duration, icon) VALUES (?, ?, ?, ?, ?)");
-      stmt.run("Tajwid & Tafsir", "Apprenez le Tajwid...", 99, "3 mois", "fas fa-book-open");
-      stmt.run("Arabe Classique", "Cours complet d'arabe...", 79, "6 mois", "fas fa-language");
-      stmt.run("Mémoire du Quran", "Mémoire complète...", 69, "2 ans", "fas fa-mosque");
-      stmt.finalize();
-    }
+  db.run(`CREATE TABLE teachers (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT,
+    email TEXT UNIQUE
+  )`);
+
+  db.run(`CREATE TABLE testimonials (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER,
+    text TEXT,
+    rating INTEGER,
+    status TEXT,
+    FOREIGN KEY(user_id) REFERENCES users(id)
+  )`);
+
+  db.run(`CREATE TABLE chat_messages (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    sender_id INTEGER,
+    receiver_id INTEGER,
+    message TEXT,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY(sender_id) REFERENCES users(id),
+    FOREIGN KEY(receiver_id) REFERENCES users(id)
+  )`);
+
+  // Insérer Admin demo
+  const hashed = bcrypt.hashSync('admin123', 10);
+  db.run(`INSERT INTO users (email,password,role,name) VALUES (?, ?, 'admin', ?)`, ['admin@institutquran.fr', hashed, 'Administrateur']);
+});
+
+// Middleware Auth JWT
+function authenticateToken(req, res, next) {
+  const authHeader = req.headers['authorization'];
+  const token = authHeader && authHeader.split(' ')[1];
+  if(!token) return res.sendStatus(401);
+  jwt.verify(token, SECRET, (err, user) => {
+    if(err) return res.sendStatus(403);
+    req.user = user;
+    next();
+  });
+}
+
+// Routes exemples
+
+// Login
+app.post('/api/auth/login', (req, res) => {
+  const {email, password} = req.body;
+  db.get('SELECT * FROM users WHERE email = ?', [email], (err, user) => {
+    if(err || !user) return res.status(401).json({error:'Utilisateur non trouvé'});
+    if(!bcrypt.compareSync(password, user.password)) return res.status(401).json({error:'Mot de passe incorrect'});
+    
+    const token = jwt.sign({id: user.id, email: user.email, role: user.role}, SECRET, {expiresIn:'24h'});
+    res.json({token, user:{id:user.id, email:user.email, role:user.role, name:user.name}});
   });
 });
 
-// Routes Courses
-app.get('/api/courses', (req, res) => {
-  db.all("SELECT * FROM courses", (err, rows) => {
-    if(err) return res.status(500).json({error: err.message});
-    res.json(rows);
-  });
-});
-
-// Ajouter un cours
-app.post('/api/courses', (req, res) => {
+// Ajouter un cours (admin seulement)
+app.post('/api/courses', authenticateToken, upload.single('image'), (req,res) => {
+  if(req.user.role !== 'admin') return res.sendStatus(403);
   const {title, description, price, duration, icon} = req.body;
-  const stmt = db.prepare("INSERT INTO courses (title, description, price, duration, icon) VALUES (?,?,?,?,?)");
-  stmt.run(title, description, price, duration, icon, function(err){
-    if(err) return res.status(500).json({error: err.message});
-    res.json({id: this.lastID});
+  const imagePath = req.file ? `/uploads/${req.file.filename}` : null;
+  db.run(`INSERT INTO courses (title,description,price,duration,icon,image) VALUES (?, ?, ?, ?, ?, ?)`,
+    [title, description, price, duration, icon, imagePath], function(err){
+        if(err) return res.status(500).json({error: err.message});
+        res.json({id:this.lastID});
   });
 });
 
-// Modifier cours
-app.put('/api/courses/:id', (req, res) => {
-  const {id} = req.params;
-  const {title, description, price, duration, icon} = req.body;
-  const stmt = db.prepare("UPDATE courses SET title=?, description=?, price=?, duration=?, icon=? WHERE id=?");
-  stmt.run(title, description, price, duration, icon, id, function(err){
-    if(err) return res.status(500).json({error: err.message});
-    res.json({changes: this.changes});
+// Autres routes CRUD sur Users, Students, Teachers, Testimonials, Chat, etc...
+
+// Chat WebSocket serveur (exemple ultra simple)
+const wss = new WebSocket.Server({port: 8080});
+wss.on('connection', ws => {
+  ws.on('message', message => {
+    // Ici vous pouvez gérer broadcast / ciblage
+    wss.clients.forEach(client => {
+      if(client.readyState === WebSocket.OPEN) client.send(message);
+    });
   });
 });
 
-// Supprimer un cours
-app.delete('/api/courses/:id', (req, res) => {
-  const {id} = req.params;
-  db.run("DELETE FROM courses WHERE id=?", id, function(err){
-    if(err) return res.status(500).json({error: err.message});
-    res.json({changes: this.changes});
-  });
-});
-
-
-// Routes Testimonials similaires
-app.get('/api/testimonials', (req,res) => {
-  db.all("SELECT * FROM testimonials WHERE status='published'", (err,rows) => {
-    if(err) return res.status(500).json({error: err.message});
-    res.json(rows);
-  });
-});
-
-app.post('/api/testimonials', (req,res) => {
-  const {name, text, rating, status} = req.body;
-  const stmt = db.prepare("INSERT INTO testimonials (name, text, rating, status) VALUES (?,?,?,?)");
-  stmt.run(name,text,rating,status, function(err){
-    if(err) return res.status(500).json({error: err.message});
-    res.json({id: this.lastID});
-  });
-});
-
-app.put('/api/testimonials/:id', (req,res) => {
-  const {id} = req.params;
-  const {name, text, rating, status} = req.body;
-  const stmt = db.prepare("UPDATE testimonials SET name=?, text=?, rating=?, status=? WHERE id=?");
-  stmt.run(name,text,rating,status,id, function(err){
-    if(err) return res.status(500).json({error: err.message});
-    res.json({changes: this.changes});
-  });
-});
-
-app.delete('/api/testimonials/:id', (req,res) => {
-  const {id} = req.params;
-  db.run("DELETE FROM testimonials WHERE id=?", id, function(err){
-    if(err) return res.status(500).json({error: err.message});
-    res.json({changes: this.changes});
-  });
-});
-
-
-// Routes Students (exemple liste simple)
-app.get('/api/students', (req,res) => {
-  db.all(`SELECT s.id, s.name, s.email, s.enrollment_date, s.status, c.title as course_title 
-          FROM students s LEFT JOIN courses c ON s.course_id = c.id`, (err, rows) => {
-    if(err) return res.status(500).json({error: err.message});
-    res.json(rows);
-  });
-});
-
-// Serveur démarré
 app.listen(3001, () => {
-  console.log("Serveur backend démarré sur http://localhost:3001");
+  console.log("API démarrée sur http://localhost:3001");
+  console.log("WebSocket chat sur ws://localhost:8080");
 });
