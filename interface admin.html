@@ -1,0 +1,958 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Institut Quran & Arabe</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --beige: #F5F2E9;
+            --beige-dark: #E8DAB2;
+            --marron: #8B4513;
+            --marron-dark: #654321;
+            --marron-light: #A67C00;
+            --white: #FFFFFF;
+            --danger: #dc3545;
+            --success: #28a745;
+            --warning: #ffc107;
+            --shadow: 0 10px 30px rgba(139, 69, 19, 0.15);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, var(--beige) 0%, var(--beige-dark) 100%);
+            min-height: 100vh;
+        }
+
+        /* Login */
+        .login-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        .login-box {
+            background: var(--white);
+            padding: 3rem;
+            border-radius: 20px;
+            box-shadow: var(--shadow);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
+
+        .login-box h2 {
+            color: var(--marron);
+            margin-bottom: 2rem;
+            font-size: 2rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+            text-align: left;
+        }
+
+        .form-group label {
+            display: block;
+            color: var(--marron);
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid var(--beige-dark);
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--marron);
+            box-shadow: 0 0 0 3px rgba(139, 69, 19, 0.1);
+        }
+
+        .login-btn {
+            width: 100%;
+            background: var(--marron);
+            color: var(--white);
+            padding: 14px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .login-btn:hover {
+            background: var(--marron-dark);
+            transform: translateY(-2px);
+        }
+
+        /* Dashboard */
+        .dashboard {
+            display: none;
+        }
+
+        .header {
+            background: var(--marron);
+            color: var(--white);
+            padding: 1rem 0;
+            box-shadow: var(--shadow);
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo-admin {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .logout-btn {
+            background: var(--marron-light);
+            color: var(--white);
+            padding: 8px 16px;
+            border-radius: 20px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .logout-btn:hover {
+            background: var(--danger);
+        }
+
+        /* Sidebar */
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 70px;
+            width: 280px;
+            height: calc(100vh - 70px);
+            background: var(--white);
+            box-shadow: var(--shadow);
+            padding: 2rem 0;
+            z-index: 100;
+        }
+
+        .nav-menu {
+            list-style: none;
+        }
+
+        .nav-item {
+            margin-bottom: 0.5rem;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem 2rem;
+            color: var(--marron);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border-left: 4px solid transparent;
+        }
+
+        .nav-link:hover,
+        .nav-link.active {
+            background: var(--beige);
+            border-left-color: var(--marron);
+            color: var(--marron-dark);
+        }
+
+        .nav-link i {
+            font-size: 1.2rem;
+            width: 20px;
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: 280px;
+            padding: 2rem;
+            min-height: 100vh;
+        }
+
+        .page-title {
+            color: var(--marron);
+            margin-bottom: 2rem;
+            font-size: 2.5rem;
+        }
+
+        /* Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .stat-card {
+            background: var(--white);
+            padding: 2rem;
+            border-radius: 20px;
+            box-shadow: var(--shadow);
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-number {
+            font-size: 3rem;
+            font-weight: 700;
+            color: var(--marron);
+            margin-bottom: 0.5rem;
+        }
+
+        /* Table */
+        .table-container {
+            background: var(--white);
+            border-radius: 20px;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+
+        .table-header {
+            background: var(--marron);
+            color: var(--white);
+            padding: 1.5rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .add-btn {
+            background: var(--success);
+            color: var(--white);
+            padding: 12px 24px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .add-btn:hover {
+            background: #218838;
+            transform: translateY(-2px);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 1.5rem 2rem;
+            text-align: left;
+            border-bottom: 1px solid var(--beige-dark);
+        }
+
+        th {
+            background: var(--beige);
+            font-weight: 600;
+            color: var(--marron-dark);
+        }
+
+        .action-btn {
+            padding: 8px 12px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 0 4px;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+
+        .edit-btn {
+            background: var(--warning);
+            color: var(--white);
+        }
+
+        .edit-btn:hover {
+            background: #e0a800;
+        }
+
+        .delete-btn {
+            background: var(--danger);
+            color: var(--white);
+        }
+
+        .delete-btn:hover {
+            background: #c82333;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        .modal-content {
+            background: var(--white);
+            padding: 3rem;
+            border-radius: 20px;
+            width: 100%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: var(--shadow);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid var(--beige-dark);
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 2rem;
+            cursor: pointer;
+            color: var(--marron);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .form-row.full-width {
+            grid-template-columns: 1fr;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+            margin-top: 2rem;
+        }
+
+        .btn-primary {
+            background: var(--marron);
+            color: var(--white);
+            padding: 12px 30px;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-secondary {
+            background: var(--beige-dark);
+            color: var(--marron);
+            padding: 12px 30px;
+            border: 2px solid var(--beige-dark);
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            background: var(--marron-dark);
+        }
+
+        .btn-secondary:hover {
+            background: var(--white);
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .sidebar {
+                transform: translateX(-100%);
+                transition: transform 0.3s ease;
+            }
+            
+            .sidebar.open {
+                transform: translateX(0);
+            }
+            
+            .main-content {
+                margin-left: 0;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .header-content {
+                padding: 0 1rem;
+            }
+        }
+
+        .success-msg, .error-msg {
+            padding: 1rem 2rem;
+            border-radius: 10px;
+            margin-bottom: 2rem;
+            font-weight: 500;
+        }
+
+        .success-msg {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .error-msg {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+    </style>
+</head>
+<body>
+    <!-- Login -->
+    <div id="loginScreen" class="login-container">
+        <div class="login-box">
+            <h2><i class="fas fa-lock"></i> Administration</h2>
+            <form id="loginForm">
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" id="loginEmail" required>
+                </div>
+                <div class="form-group">
+                    <label>Mot de passe</label>
+                    <input type="password" id="loginPassword" required>
+                </div>
+                <button type="submit" class="login-btn">
+                    <i class="fas fa-sign-in-alt"></i> Se connecter
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Dashboard -->
+    <div id="dashboard" class="dashboard">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <div class="logo-admin">
+                    <i class="fas fa-mosque"></i> Admin Panel
+                </div>
+                <div class="user-info">
+                    <span id="userName">Admin</span>
+                    <a href="#" id="logoutBtn" class="logout-btn">
+                        <i class="fas fa-sign-out-alt"></i> Déconnexion
+                    </a>
+                </div>
+            </div>
+        </header>
+
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <ul class="nav-menu">
+                <li class="nav-item"><a href="#" class="nav-link active" data-section="dashboard"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+                <li class="nav-item"><a href="#" class="nav-link" data-section="courses"><i class="fas fa-book"></i> Cours</a></li>
+                <li class="nav-item"><a href="#" class="nav-link" data-section="testimonials"><i class="fas fa-star"></i> Témoignages</a></li>
+                <li class="nav-item"><a href="#" class="nav-link" data-section="students"><i class="fas fa-users"></i> Élèves</a></li>
+                <li class="nav-item"><a href="#" class="nav-link" data-section="settings"><i class="fas fa-cog"></i> Paramètres</a></li>
+            </ul>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Dashboard Section -->
+            <section id="dashboardSection">
+                <h1 class="page-title">Dashboard</h1>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-number" id="totalCourses">12</div>
+                        <div>Cours actifs</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="totalStudents">245</div>
+                        <div>Élèves inscrits</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="totalTestimonials">23</div>
+                        <div>Témoignages</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="revenue">€4,250</div>
+                        <div>Chiffre d'affaires</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Courses Section -->
+            <section id="coursesSection" style="display: none;">
+                <div class="table-header">
+                    <h2>Gestion des Cours</h2>
+                    <button class="add-btn" onclick="openModal('courseModal')">
+                        <i class="fas fa-plus"></i> Ajouter un cours
+                    </button>
+                </div>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Titre</th>
+                                <th>Description</th>
+                                <th>Prix</th>
+                                <th>Durée</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="coursesTableBody">
+                            <!-- Données chargées dynamiquement -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Testimonials Section -->
+            <section id="testimonialsSection" style="display: none;">
+                <div class="table-header">
+                    <h2>Gestion des Témoignages</h2>
+                    <button class="add-btn" onclick="openModal('testimonialModal')">
+                        <i class="fas fa-plus"></i> Ajouter témoignage
+                    </button>
+                </div>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Nom</th>
+                                <th>Témoignage</th>
+                                <th>Note</th>
+                                <th>Statut</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="testimonialsTableBody">
+                            <!-- Données chargées dynamiquement -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Students Section -->
+            <section id="studentsSection" style="display: none;">
+                <div class="table-header">
+                    <h2>Gestion des Élèves</h2>
+                </div>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Nom</th>
+                                <th>Email</th>
+                                <th>Cours</th>
+                                <th>Date inscription</th>
+                                <th>Statut</th>
+                            </tr>
+                        </thead>
+                        <tbody id="studentsTableBody">
+                            <!-- Données chargées dynamiquement -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Settings Section -->
+            <section id="settingsSection" style="display: none;">
+                <h2 class="page-title">Paramètres</h2>
+                <div class="table-container" style="padding: 2rem;">
+                    <h3>Configuration générale</h3>
+                    <form id="settingsForm">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Nom de l'institut</label>
+                                <input type="text" value="Institut Quran & Arabe">
+                            </div>
+                            <div class="form-group">
+                                <label>Email contact</label>
+                                <input type="email" value="contact@institutquran.fr">
+                            </div>
+                        </div>
+                        <button type="submit" class="btn-primary">Sauvegarder</button>
+                    </form>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Course Modal -->
+    <div id="courseModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="courseModalTitle">Ajouter un cours</h3>
+                <button class="close-modal" onclick="closeModal('courseModal')">&times;</button>
+            </div>
+            <form id="courseForm">
+                <input type="hidden" id="courseId">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Titre du cours</label>
+                        <input type="text" id="courseTitle" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Prix (€/mois)</label>
+                        <input type="number" id="coursePrice" required>
+                    </div>
+                </div>
+                <div class="form-group full-width">
+                    <label>Description</label>
+                    <textarea id="courseDescription" rows="4" required></textarea>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Durée</label>
+                        <input type="text" id="courseDuration" placeholder="ex: 3 mois">
+                    </div>
+                    <div class="form-group">
+                        <label>Icone (FontAwesome)</label>
+                        <input type="text" id="courseIcon" placeholder="fas fa-book-open">
+                    </div>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn-secondary" onclick="closeModal('courseModal')">Annuler</button>
+                    <button type="submit" class="btn-primary">Sauvegarder</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Testimonial Modal -->
+    <div id="testimonialModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="testimonialModalTitle">Ajouter un témoignage</h3>
+                <button class="close-modal" onclick="closeModal('testimonialModal')">&times;</button>
+            </div>
+            <form id="testimonialForm">
+                <input type="hidden" id="testimonialId">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Nom</label>
+                        <input type="text" id="testimonialName" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Note (1-5)</label>
+                        <input type="number" id="testimonialRating" min="1" max="5" required>
+                    </div>
+                </div>
+                <div class="form-group full-width">
+                    <label>Témoignage</label>
+                    <textarea id="testimonialText" rows="4" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Statut</label>
+                    <select id="testimonialStatus">
+                        <option value="published">Publié</option>
+                        <option value="pending">En attente</option>
+                        <option value="archived">Archivé</option>
+                    </select>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn-secondary" onclick="closeModal('testimonialModal')">Annuler</button>
+                    <button type="submit" class="btn-primary">Sauvegarder</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Données simulées (remplacez par votre backend)
+        let courses = [
+            {id: 1, title: 'Tajwid & Tafsir', description: 'Maîtrisez la récitation correcte du Quran...', price: 99, duration: '3 mois', icon: 'fas fa-book-open'},
+            {id: 2, title: 'Arabe Classique', description: 'De la lecture à la conversation fluide...', price: 79, duration: '6 mois', icon: 'fas fa-language'},
+            {id: 3, title: 'Mémoire du Quran', description: 'Hifz complet du Quran...', price: 69, duration: '2 ans', icon: 'fas fa-mosque'}
+        ];
+
+        let testimonials = [
+            {id: 1, name: 'Fatima A.', text: 'Excellente pédagogie ! J\'ai mémorisé 5 juz\'...', rating: 5, status: 'published'},
+            {id: 2, name: 'Ahmed B.', text: 'Ma compréhension de l\'arabe s\'est améliorée...', rating: 5, status: 'published'},
+            {id: 3, name: 'Amina K.', text: 'Les cours de Tajwid ont transformé ma récitation...', rating: 5, status: 'published'}
+        ];
+
+        let students = [
+            {id: 1, name: 'Mohammed L.', email: 'mohammed@email.com', course: 'Tajwid', date: '2024-01-15', status: 'active'},
+            {id: 2, name: 'Sarah M.', email: 'sarah@email.com', course: 'Arabe', date: '2024-02-01', status: 'active'}
+        ];
+
+        // Login
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            
+            // Simulation login (remplacez par votre authentification)
+            if (email === 'admin@institutquran.fr' && password === 'admin123') {
+                document.getElementById('loginScreen').style.display = 'none';
+                document.getElementById('dashboard').style.display = 'block';
+                loadDashboard();
+            } else {
+                alert('Identifiants incorrects');
+            }
+        });
+
+        // Navigation
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                const section = this.dataset.section;
+                
+                // Update active nav
+                document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+                this.classList.add('active');
+                
+                // Show section
+                document.querySelectorAll('section').forEach(s => s.style.display = 'none');
+                document.getElementById(section + 'Section').style.display = 'block';
+                
+                if (section === 'courses') loadCourses();
+                if (section === 'testimonials') loadTestimonials();
+                if (section === 'students') loadStudents();
+            });
+        });
+
+        // Logout
+        document.getElementById('logoutBtn').addEventListener('click', function(e) {
+            e.preventDefault();
+            document.getElementById('dashboard').style.display = 'none';
+            document.getElementById('loginScreen').style.display = 'flex';
+            document.getElementById('loginForm').reset();
+        });
+
+        // Load Dashboard
+        function loadDashboard() {
+            document.getElementById('totalCourses').textContent = courses.length;
+            document.getElementById('totalStudents').textContent = students.length;
+            document.getElementById('totalTestimonials').textContent = testimonials.length;
+            document.getElementById('revenue').textContent = '€' + (courses.reduce((sum, c) => sum + c.price, 0) * 5).toLocaleString();
+        }
+
+        // Load Courses
+        function loadCourses() {
+            const tbody = document.getElementById('coursesTableBody');
+            tbody.innerHTML = courses.map(course => `
+                <tr>
+                    <td>${course.id}</td>
+                    <td>${course.title}</td>
+                    <td>${course.description.substring(0, 50)}...</td>
+                    <td>€${course.price}</td>
+                    <td>${course.duration}</td>
+                    <td>
+                        <button class="action-btn edit-btn" onclick="editCourse(${course.id})">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="action-btn delete-btn" onclick="deleteCourse(${course.id})">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // Load Testimonials
+        function loadTestimonials() {
+            const tbody = document.getElementById('testimonialsTableBody');
+            tbody.innerHTML = testimonials.map(testimonial => `
+                <tr>
+                    <td>${testimonial.id}</td>
+                    <td>${testimonial.name}</td>
+                    <td>${testimonial.text.substring(0, 50)}...</td>
+                    <td>${'★'.repeat(testimonial.rating)}</td>
+                    <td>
+                        <span style="color: ${testimonial.status === 'published' ? 'var(--success)' : 'var(--warning)'}">
+                            ${testimonial.status}
+                        </span>
+                    </td>
+                    <td>
+                        <button class="action-btn edit-btn" onclick="editTestimonial(${testimonial.id})">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="action-btn delete-btn" onclick="deleteTestimonial(${testimonial.id})">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // Load Students
+        function loadStudents() {
+            const tbody = document.getElementById('studentsTableBody');
+            tbody.innerHTML = students.map(student => `
+                <tr>
+                    <td>${student.id}</td>
+                    <td>${student.name}</td>
+                    <td>${student.email}</td>
+                    <td>${student.course}</td>
+                    <td>${student.date}</td>
+                    <td>
+                        <span style="color: ${student.status === 'active' ? 'var(--success)' : 'var(--danger)'}">
+                            ${student.status}
+                        </span>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // Modal functions
+        function openModal(modalId) {
+            document.getElementById(modalId).style.display = 'flex';
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+            document.getElementById(modalId + 'Form').reset();
+        }
+
+        // Course CRUD
+        document.getElementById('courseForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const id = document.getElementById('courseId').value;
+            const course = {
+                id: id ? parseInt(id) : Date.now(),
+                title: document.getElementById('courseTitle').value,
+                description: document.getElementById('courseDescription').value,
+                price: parseInt(document.getElementById('coursePrice').value),
+                duration: document.getElementById('courseDuration').value,
+                icon: document.getElementById('courseIcon').value
+            };
+
+            if (id) {
+                const index = courses.findIndex(c => c.id == id);
+                courses[index] = course;
+            } else {
+                courses.push(course);
+            }
+
+            closeModal('courseModal');
+            loadCourses();
+            showMessage('Cours sauvegardé avec succès!', 'success');
+        });
+
+        function editCourse(id) {
+            const course = courses.find(c => c.id === id);
+            document.getElementById('courseId').value = course.id;
+            document.getElementById('courseTitle').value = course.title;
+            document.getElementById('courseDescription').value = course.description;
+            document.getElementById('coursePrice').value = course.price;
+            document.getElementById('courseDuration').value = course.duration;
+            document.getElementById('courseIcon').value = course.icon;
+            document.getElementById('courseModalTitle').textContent = 'Modifier le cours';
+            openModal('courseModal');
+        }
+
+        function deleteCourse(id) {
+            if (confirm('Supprimer ce cours ?')) {
+                courses = courses.filter(c => c.id !== id);
+                loadCourses();
+                showMessage('Cours supprimé!', 'success');
+            }
+        }
+
+        // Testimonial CRUD
+        document.getElementById('testimonialForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const id = document.getElementById('testimonialId').value;
+            const testimonial = {
+                id: id ? parseInt(id) : Date.now(),
+                name: document.getElementById('testimonialName').value,
+                text: document.getElementById('testimonialText').value,
+                rating: parseInt(document.getElementById('testimonialRating').value),
+                status: document.getElementById('testimonialStatus').value
+            };
+
+            if (id) {
+                const index = testimonials.findIndex(t => t.id == id);
+                testimonials[index] = testimonial;
+            } else {
+                testimonials.push(testimonial);
+            }
+
+            closeModal('testimonialModal');
+            loadTestimonials();
+            showMessage('Témoignage sauvegardé!', 'success');
+        });
+
+        function editTestimonial(id) {
+            const testimonial = testimonials.find(t => t.id === id);
+            document.getElementById('testimonialId').value = testimonial.id;
+            document.getElementById('testimonialName').value = testimonial.name;
+            document.getElementById('testimonialText').value = testimonial.text;
+            document.getElementById('testimonialRating').value = testimonial.rating;
+            document.getElementById('testimonialStatus').value = testimonial.status;
+            document.getElementById('testimonialModalTitle').textContent = 'Modifier le témoignage';
+            openModal('testimonialModal');
+        }
+
+        function deleteTestimonial(id) {
+            if (confirm('Supprimer ce témoignage ?')) {
+                testimonials = testimonials.filter(t => t.id !== id);
+                loadTestimonials();
+                showMessage('Témoignage supprimé!', 'success');
+            }
+        }
+
+        // Messages
+        function showMessage(text, type) {
+            const msg = document.createElement('div');
+            msg.className = type === 'success' ? 'success-msg' : 'error-msg';
+            msg.textContent = text;
+            document.querySelector('.main-content').insertBefore(msg, document.querySelector('.main-content').firstChild);
+            setTimeout(() => msg.remove(), 4000);
+        }
+
+        // Close modals on outside click
+        window.addEventListener('click', function(e) {
+            if (e.target.classList.contains('modal')) {
+                closeModal(e.target.id);
+            }
+        });
+    </script>
+</body>
+</html>
